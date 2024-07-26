@@ -1,0 +1,67 @@
+scalar Date
+
+enum title {
+    Employee
+    Manager
+    Director
+    VP
+}
+
+enum department {
+    IT
+    Marketing
+    HR
+    Engineering
+}
+
+enum employeeType {
+    FullTime
+    PartTime
+    Contract
+    Seasonal
+}
+     
+type Employee {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    age: Int!
+    dateOfJoining: Date!
+    title: title!
+    department: department!
+    employeeType: employeeType!
+    currentStatus: Boolean!
+}
+
+type Query {
+    getAllEmployees(employeeType: employeeType): [Employee]
+    getEmployeeById(id: ID!): Employee
+}
+
+type Mutation {
+    createEmployee(
+        firstName: String!, 
+        lastName: String!,
+        age: Int!,
+        dateOfJoining: Date!,
+        title: title!,
+        department: department!,
+        employeeType: employeeType!,
+        currentStatus: Boolean!
+        ): Employee
+
+    updateEmployee(
+        id: ID!,
+        title: title,
+        department: department,
+        currentStatus: Boolean
+        ): Employee
+
+    deleteEmployee(
+        id: ID!
+        ): Employee
+}
+
+type Subscription {
+    employeeUpdated: Employee
+}
