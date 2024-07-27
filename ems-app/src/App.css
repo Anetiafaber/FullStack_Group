@@ -41,6 +41,7 @@
 .emp-list {
   display: flex;
   flex-direction: column;
+  margin-top: 35px;
 }
 
 .add-item-btn-box {

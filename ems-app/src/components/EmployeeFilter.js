@@ -18,22 +18,17 @@ function EmployeeFilter() {
       className="container filterBox"
     >
       <FormControl width="auto" ml="auto" mb={5}>
-        <FormLabel color="white">Filter by Employee Type</FormLabel>
+        <FormLabel>Filter by Employee Type</FormLabel>
         <Select defaultValue=""
           w={250}
           className="filterDropdown"
           sx={{
-            color: "white",
-            "::placeholder": {
-              color: "white",
-            },
             "& > option": {
               color: "black",
             },
             ":focus-visible": {
               zIndex: 1,
-              borderColor: "#fdd114",
-              boxShadow: "0 0 0 1px #fdd114",
+              boxShadow: "0 0 0 1px #0000EB",
             },
           }}
           onChange={handleSelectChange}
