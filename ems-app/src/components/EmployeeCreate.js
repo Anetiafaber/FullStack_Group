@@ -54,6 +54,7 @@ function EmployeeCreate({addEmployee}) {
         age,
         dateOfJoining: dateOfJoiningDate,
         currentStatus: true,
+        isActive: true
       },
       // display toast message for the response
       onCompleted: () => {

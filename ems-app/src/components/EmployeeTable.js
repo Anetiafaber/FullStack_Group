@@ -19,7 +19,7 @@ function EmployeeTable({employees}) {
 
   return !employees.length ? ( <Badge color={"white"} variant="outline" borderRadius="4" p="4" m="5"> No Employee Added </Badge> ) :  (
     <div className="content">
-      <div className="container">
+      <div className="">
         <div className="table-responsive">
           <table className="table table-striped custom-table">
             <thead>

@@ -27,7 +27,7 @@ import "../App.css";
 import { useQuery, gql } from "@apollo/client";
 import { useParams, useNavigate } from "react-router-dom";
 
-
+// Query to fetch a single employee by id
 const GET_EMPLOYEE_BY_ID = gql`
   query GetEmployeeById($id: ID!) {
     getEmployeeById(id: $id) {
@@ -40,22 +40,23 @@ const GET_EMPLOYEE_BY_ID = gql`
       department
       employeeType
       currentStatus
+      isActive
     }
   }
 `;
 
 
-function EmployeeDetails({updateEmployee, deleteEmployee}) {
-    // get the emp id from route parameter
-    const { employeeId } = useParams();
-    const navigate = useNavigate();
+function EmployeeDetails({updateEmployee, updateEmployeeStatus}) {
+  const toast = useToast();
 
-    // get details api for fetching the details of a single employee
-    const { loading, error, data } = useQuery(GET_EMPLOYEE_BY_ID, {
-        variables: { id: employeeId },
-      });
+  // get the emp id from route parameter
+  const { employeeId } = useParams();
+  const navigate = useNavigate();
 
-    const toast = useToast();
+  // get details api for fetching the details of a single employee
+  const { loading, error, data } = useQuery(GET_EMPLOYEE_BY_ID, {
+      variables: { id: employeeId },
+    });
 
   // React-hook-form module used for form validation and submission
   const {
@@ -70,6 +71,7 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
   const [dateOfJoining, setDateOfJoining] = useState("");
   const [employeeType, setEmployeeType] = useState("");
   const [currentStatus, setCurrentStatus] = useState();
+  const [isActive, setIsActive] = useState();
 
   // Format date to YYYY-MM-DD 
   function formatDateToString(date) {
@@ -82,6 +84,7 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
     if (data?.getEmployeeById?.dateOfJoining) {
         setDateOfJoining(formatDateToString(data.getEmployeeById.dateOfJoining));
     }
+
     reset({
       firstName: data?.getEmployeeById?.firstName || "",
       lastName: data?.getEmployeeById?.lastName || "",
@@ -89,9 +92,12 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
       title: data?.getEmployeeById?.title || "",
       department: data?.getEmployeeById?.department || "",
     });
+
     setAge(data?.getEmployeeById?.age || 0);
     setEmployeeType(data?.getEmployeeById?.employeeType || "")
     setCurrentStatus(data?.getEmployeeById?.currentStatus || false)
+    setIsActive(data?.getEmployeeById?.isActive || false)
+
   }, [data, reset]);
 
   if (loading) return <p>Loading...</p>;
@@ -128,11 +134,28 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
     });
   }
 
-  // delete employee from database
+  // delete(make them inactive) employee from database
   function handleDelete() {
-    deleteEmployee({
-      variables: { id: employeeId },
-      // display toast message for the response
+    // if employee is working, do not allow deletion
+    if (currentStatus) {
+      toast({
+        title: "Error deleting Employee",
+        description: "The employee is currently working and cannot be deleted.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      onClose();
+      return;
+    }
+
+    // delete (make them inactive) mutation
+    updateEmployeeStatus({
+      variables: {
+        id: employeeId, 
+        isActive: false
+    },
+    // display toast message for the response
       onCompleted: () => {
         toast({
           title: "Employee deleted",
@@ -141,10 +164,70 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
           duration: 3000,
           isClosable: true,
         });
+
+        // close confirmation popup and navigate to home page
         onClose();
         setTimeout(() => {
             navigate('/', { replace: true });
           }, 2000);
+      },
+      onError: (error) => {
+        toast({
+          title: "An error occurred",
+          description: error.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        onClose();
+      },
+    });
+
+    // deleteEmployee({
+    //   variables: { id: employeeId },
+    //   // display toast message for the response
+    //   onCompleted: () => {
+    //     toast({
+    //       title: "Employee deleted",
+    //       description: "The employee has been successfully deleted.",
+    //       status: "success",
+    //       duration: 3000,
+    //       isClosable: true,
+    //     });
+    //     onClose();
+    //     setTimeout(() => {
+    //         navigate('/', { replace: true });
+    //       }, 2000);
+    //   },
+    //   onError: (error) => {
+    //     toast({
+    //       title: "An error occurred",
+    //       description: error.message,
+    //       status: "error",
+    //       duration: 3000,
+    //       isClosable: true,
+    //     });
+    //     onClose();
+    //   },
+    // });
+  }
+
+  // Enable Active status of employee
+  function handleEnable() {
+    updateEmployeeStatus({
+      variables: {
+        id: employeeId,
+        isActive: true
+    },
+    // display toast message for the response
+      onCompleted: () => {
+        toast({
+          title: "Employee Enabled",
+          description: "The employee has been successfully enabled.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
       },
       onError: (error) => {
         toast({
@@ -235,7 +318,7 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
               <FormLabel>Date of Joining</FormLabel>
               <Input
                 id="dateOfJoining"
-                placeholder="Select Date and Time"
+                placeholder="Select Joining Date"
                 size="md"
                 type="date"
                 value={dateOfJoining}
@@ -286,6 +369,36 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
                   </Radio>
                 </Stack>
               </RadioGroup>
+            </FormControl>
+
+            <FormControl
+              className="add-emp-form-control"
+              isInvalid={errors.isActive}
+            >
+              <FormLabel>Is he/she an Active Employee?</FormLabel>
+              <RadioGroup id="isActive" value={isActive ? "Yes" : "No"}>
+                <Stack direction="row">
+                  <Radio
+                    value="Yes"
+                    isReadOnly
+                    className="read-only-field"
+                    {...register("isActive")}
+                  >
+                    Yes
+                  </Radio>
+                  <Radio
+                    value="No"
+                    isReadOnly
+                    className="read-only-field"
+                    {...register("isActive")}
+                  >
+                    No
+                  </Radio>
+                </Stack>
+              </RadioGroup>
+              <FormErrorMessage>
+                {errors.isActive && errors.isActive.message}
+              </FormErrorMessage>
             </FormControl>
 
             <FormControl
@@ -365,9 +478,18 @@ function EmployeeDetails({updateEmployee, deleteEmployee}) {
               <Button variant="dark" type="submit" color="teal">
                 Edit Employee
               </Button>
-              <Button variant="danger" colorscheme="red" onClick={onOpen}>
+              {isActive ? (
+                <Button variant="danger" colorscheme="red" onClick={onOpen}>
+                  Delete Employee
+                </Button>
+              ) : (
+                <Button variant="success" colorscheme="green" onClick={handleEnable}>
+                  Enable Employee
+                </Button>
+              )}
+              {/* <Button variant="danger" colorscheme="red" onClick={onOpen}>
                 Delete Employee
-              </Button>
+              </Button> */}
 
               <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />

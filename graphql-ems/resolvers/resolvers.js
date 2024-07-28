@@ -12,8 +12,8 @@ export const resolvers = {
     },
   }),
   Query: {
-    getAllEmployees: async (_, { employeeType }) =>  {
-      let filter = {};
+    getAllEmployees: async (_, { employeeType, isActive }) =>  {
+      let filter = {isActive};
       if (employeeType) {
         filter.employeeType = employeeType;
       }
@@ -40,6 +40,7 @@ export const resolvers = {
         department,
         employeeType,
         currentStatus,
+        isActive
       }
     ) => {
         try {
@@ -52,6 +53,7 @@ export const resolvers = {
                 department,
                 employeeType,
                 currentStatus,
+                isActive
             };
             await UserModel.create(newEmployee);
             return newEmployee;
@@ -81,6 +83,25 @@ export const resolvers = {
         } catch (error) {
             console.error("Error updating employee: ", error);
             throw new Error("Failed to update employee");
+        }
+    },
+
+    updateEmployeeStatus: async (
+      _,
+      {
+        id,
+        isActive
+      }
+    ) => {
+        try {
+            const updateValues = {
+                isActive
+            };
+            const updatedEmployee = await UserModel.findByIdAndUpdate(id, updateValues, {new: true});
+            return updatedEmployee;
+        } catch (error) {
+            console.error("Error deleting employee: ", error);
+            throw new Error("Failed to delete employee");
         }
     },
 

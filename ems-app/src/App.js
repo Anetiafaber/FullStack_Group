@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Outlet, Link } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import './App.css';
 import EmployeeDirectory from "./components/EmployeeDirectory";
 import NavigationBar from "./components/NavigationBar";
@@ -10,8 +10,8 @@ import { useQuery, gql, useMutation } from "@apollo/client";
 
 // apollo client queries and mutations
 const GET_EMPLOYEES = gql`
-  query GetAllEmployees($employeeType: employeeType) {
-    getAllEmployees(employeeType: $employeeType) {
+  query GetAllEmployees($employeeType: employeeType, $isActive: Boolean) {
+    getAllEmployees(employeeType: $employeeType, isActive: $isActive) {
       id,
       firstName
       lastName
@@ -21,6 +21,7 @@ const GET_EMPLOYEES = gql`
       department
       employeeType
       currentStatus
+      isActive
     }
   }
 `;
@@ -34,7 +35,8 @@ const CREATE_EMPLOYEE = gql`
     $title: title!,
     $department: department!,
     $employeeType: employeeType!,
-    $currentStatus: Boolean!
+    $currentStatus: Boolean!,
+    $isActive: Boolean!
   ) {
     createEmployee(
       firstName: $firstName,
@@ -44,7 +46,8 @@ const CREATE_EMPLOYEE = gql`
       title: $title,
       department: $department,
       employeeType: $employeeType,
-      currentStatus: $currentStatus
+      currentStatus: $currentStatus,
+      isActive: $isActive
     ) {
       firstName
       lastName
@@ -54,6 +57,7 @@ const CREATE_EMPLOYEE = gql`
       department
       employeeType
       currentStatus
+      isActive
     }
   }
 `;
@@ -79,6 +83,29 @@ const UPDATE_EMPLOYEE = gql`
       department
       employeeType
       currentStatus
+      isActive
+    }
+  }
+`;
+
+const UPDATE_EMPLOYEE_STATUS = gql`
+  mutation UpdateEmployeeStatus(
+    $id: ID!
+    $isActive: Boolean!
+  ) {
+    updateEmployeeStatus(
+      id: $id
+      isActive: $isActive
+    ) {
+      firstName
+      lastName
+      age
+      dateOfJoining
+      title
+      department
+      employeeType
+      currentStatus
+      isActive
     }
   }
 `;
@@ -98,6 +125,7 @@ const DELETE_EMPLOYEE = gql`
       department
       employeeType
       currentStatus
+      isActive
     }
   }
 `;
@@ -105,19 +133,31 @@ const DELETE_EMPLOYEE = gql`
 function App() {
   // Read data of all employees with useQuery hook
   const { loading, error, data, refetch } = useQuery(GET_EMPLOYEES, {
-    variables: {},
+    variables: {isActive: true},
   });
   const [employees, setEmployees] = useState([]);
 
-  // reload data of employees on filtering
-  const reloadData = async (employeeType) => {
-    if(employeeType) {
-      await refetch({ employeeType });
-    }
+  // reload data of employees based on filtering
+  const reloadData = async (employeeType, inActive) => {
+    if (inActive) {
+      await refetch({ employeeType: null, isActive: false });
+    } 
+    else if (employeeType) {
+      const filters = { employeeType: null};
+      if (employeeType) {
+        filters.employeeType = employeeType;
+      }
+      await refetch(filters);
+    } 
     else {
-      await refetch({ employeeType: null });
+      await refetch({ employeeType: null, isActive: true });
     }
   };
+
+  // refetch data of inactive employees
+  // const refetchInactive = async (inActive) => {
+  //   await refetch({ isActive: !inActive });
+  // };
 
   // useEffect hook used to ensure data is initialized after loading
   useEffect(() => {
@@ -136,10 +176,15 @@ function App() {
     refetchQueries: [{ query: GET_EMPLOYEES }],
   });
 
-  // Mutation to delete an employee and refetch table
-  const [deleteEmployee, { loading: deleteLoading, error: deleteError, data: deleteData }] = useMutation(DELETE_EMPLOYEE, {
+  // Mutation to delete/change an employee status and refetch table
+  const [updateEmployeeStatus, { loading: updateStatusLoading, error: updateStatusError, data: updateStatusData }] = useMutation(UPDATE_EMPLOYEE_STATUS, {
     refetchQueries: [{ query: GET_EMPLOYEES }],
   });
+
+  // Mutation to delete an employee and refetch table
+  // const [deleteEmployee, { loading: deleteLoading, error: deleteError, data: deleteData }] = useMutation(DELETE_EMPLOYEE, {
+  //   refetchQueries: [{ query: GET_EMPLOYEES }],
+  // });
   
 
   return (
@@ -147,7 +192,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<EmployeeDirectory employees={employees} reloadData={reloadData}/>} />
             <Route path="create" element={<EmployeeCreate addEmployee={addEmployee}/>} />
-            <Route path="employee/:employeeId" element={<EmployeeDetails updateEmployee={updateEmployee} deleteEmployee={deleteEmployee}/>} />
+            <Route path="employee/:employeeId" element={<EmployeeDetails updateEmployee={updateEmployee} updateEmployeeStatus={updateEmployeeStatus}/>} />
             <Route path="*" element={<NotFound />} />
           </Route>
       </Routes>
@@ -160,8 +205,6 @@ function Layout() {
       {/* A "layout route" is a good place to put markup you want to
           share across all the pages on your site, like navigation. */}
       <NavigationBar />
-
-      {/* <hr /> */}
 
       {/* An <Outlet> renders whatever child route is currently active,
           so you can think about this <Outlet> as a placeholder for

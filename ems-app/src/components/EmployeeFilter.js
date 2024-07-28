@@ -1,14 +1,33 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { Select, FormControl, FormLabel, Box } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function EmployeeFilter() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [employeeType, setEmployeeType] = useState("");
 
-  // get selected filter value
+  // Get employee type from query params to retain dropdown value
+  useEffect( () => {
+    const params = new URLSearchParams(location.search);
+    const employeeTypeParam = params.get("employeeType") 
+    setEmployeeType(employeeTypeParam || "");
+  });
+
+  // get selected filter value and set query params
   const handleSelectChange = (e) => {
+    const params = new URLSearchParams(location.search);
     const selectedType = e.target.value;
-    navigate(selectedType ? `?employeeType=${selectedType}` : "/");
+
+    if (selectedType) {
+      params.set("employeeType", selectedType);
+    } else {
+      params.delete("employeeType");
+    }
+
+    navigate(`${location.pathname}?${params.toString()}`);
+
+    // navigate(selectedType ? `?employeeType=${selectedType}` : "/");
   };
 
   return (
@@ -19,7 +38,7 @@ function EmployeeFilter() {
     >
       <FormControl width="auto" ml="auto" mb={5}>
         <FormLabel>Filter by Employee Type</FormLabel>
-        <Select defaultValue=""
+        <Select value={employeeType}
           w={250}
           className="filterDropdown"
           sx={{

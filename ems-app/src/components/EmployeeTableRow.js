@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 
 function EmployeeTableRow({ employee, navigateToDetail }) {
-  // Function to format date
+  // Function to format date as MMM D YYYY
   function formatDateToString (date) {
     let inputDate = new Date(date);
     return `${inputDate.toLocaleString('default', { month: 'short' })} ${inputDate.getDate()} ${inputDate.getFullYear()}`;

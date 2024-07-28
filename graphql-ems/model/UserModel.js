@@ -35,6 +35,11 @@ var schema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: true
+    },
+    isActive: {
+        type: Boolean,
+        required: true,
+        default: true
     }
 });
 var UserModel = new mongoose.model('UserModel', schema);

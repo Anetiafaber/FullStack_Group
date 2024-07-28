@@ -31,10 +31,11 @@ type Employee {
     department: department!
     employeeType: employeeType!
     currentStatus: Boolean!
+    isActive: Boolean!
 }
 
 type Query {
-    getAllEmployees(employeeType: employeeType): [Employee]
+    getAllEmployees(employeeType: employeeType, isActive: Boolean): [Employee]
     getEmployeeById(id: ID!): Employee
 }
 
@@ -48,6 +49,7 @@ type Mutation {
         department: department!,
         employeeType: employeeType!,
         currentStatus: Boolean!
+        isActive: Boolean!
         ): Employee
 
     updateEmployee(
@@ -55,6 +57,11 @@ type Mutation {
         title: title,
         department: department,
         currentStatus: Boolean
+        ): Employee
+
+    updateEmployeeStatus(
+        id: ID!,
+        isActive: Boolean!
         ): Employee
 
     deleteEmployee(
