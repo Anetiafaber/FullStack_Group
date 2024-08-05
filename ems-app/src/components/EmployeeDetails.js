@@ -26,6 +26,7 @@ import { useForm } from "react-hook-form";
 import "../App.css";
 import { useQuery, gql } from "@apollo/client";
 import { useParams, useNavigate } from "react-router-dom";
+import moment from "moment";
 
 // Query to fetch a single employee by id
 const GET_EMPLOYEE_BY_ID = gql`
@@ -34,6 +35,7 @@ const GET_EMPLOYEE_BY_ID = gql`
       id
       firstName
       lastName
+      dateOfBirth
       age
       dateOfJoining
       title
@@ -67,6 +69,7 @@ function EmployeeDetails({updateEmployee, updateEmployeeStatus}) {
   } = useForm();
 
   const [isOpen, setIsOpen] = useState(false);
+  const[dateOfBirth, setDateOfBirth] = useState("");
   const [age, setAge] = useState(0);
   const [dateOfJoining, setDateOfJoining] = useState("");
   const [employeeType, setEmployeeType] = useState("");
@@ -81,6 +84,9 @@ function EmployeeDetails({updateEmployee, updateEmployeeStatus}) {
 
   // display data in the form
   useEffect(() => {
+    if (data?.getEmployeeById?.dateOfBirth) {
+      setDateOfBirth(formatDateToString(data.getEmployeeById.dateOfBirth));
+    }
     if (data?.getEmployeeById?.dateOfJoining) {
         setDateOfJoining(formatDateToString(data.getEmployeeById.dateOfJoining));
     }
@@ -287,6 +293,23 @@ function EmployeeDetails({updateEmployee, updateEmployeeStatus}) {
                 isReadOnly
                 className="read-only-field"
                 {...register("lastName")}
+              />
+            </FormControl>
+
+            <FormControl
+              className="add-emp-form-control"
+            >
+              <FormLabel>Date of Birth</FormLabel>
+              <Input
+                id="dateOfBirth"
+                placeholder="Select Birth Date"
+                size="md"
+                type="date"
+                value={dateOfBirth}
+                isReadOnly
+                className="read-only-field"
+                max={formatDateToString(new Date())}
+                {...register("dateOfBirth")}
               />
             </FormControl>
 

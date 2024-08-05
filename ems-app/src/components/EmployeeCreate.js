@@ -19,6 +19,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import moment from "moment";
 import "../App.css";
 
 
@@ -38,19 +39,23 @@ function EmployeeCreate({addEmployee}) {
 
   // Format date to YYYY-MM-DD 
   function formatDateToString(date) {
-    const inputDate = new Date(date);
-    return inputDate.toISOString().split("T")[0];
+    return moment(date).format("YYYY-MM-DD");
+    // const inputDate = new Date(date);
+    // return inputDate.toISOString().split("T")[0];
   }
 
   function handleAddSubmit(values) {
 
     // Convert date string to date object
-    const dateOfJoiningDate = new Date(values.dateOfJoining);
+    //const dateOfJoiningDate = new Date(values.dateOfJoining);
+    const dateOfBirthDate = moment(values.dateOfBirth).toDate();
+    const dateOfJoiningDate = moment(values.dateOfJoining).toDate();
 
     // Add employee to database
     addEmployee({
       variables: {
         ...values,
+        dateOfBirth: dateOfBirthDate,
         age,
         dateOfJoining: dateOfJoiningDate,
         currentStatus: true,
@@ -126,6 +131,27 @@ function EmployeeCreate({addEmployee}) {
                 {errors.lastName && errors.lastName.message}
               </FormErrorMessage>
             </FormControl>
+
+            <FormControl
+              className="add-emp-form-control"
+              isInvalid={errors.dateOfBirth}
+            >
+              <FormLabel>Date of Birth</FormLabel>
+              <Input
+                id="dateOfBirth"
+                placeholder="Select Birth Date"
+                size="md"
+                type="date"
+                max={formatDateToString(new Date())}
+                {...register("dateOfBirth", {
+                  required: "Date of Birth is required",
+                })}
+              />
+              <FormErrorMessage>
+                {errors.dateOfBirth && errors.dateOfBirth.message}
+              </FormErrorMessage>
+            </FormControl>
+
 
             <FormControl
               className="add-emp-form-control"

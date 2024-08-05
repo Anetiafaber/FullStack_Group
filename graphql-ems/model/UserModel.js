@@ -8,6 +8,10 @@ var schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    dateOfBirth: {
+        type: Date,
+        required: true
+    },
     age: {
         type: Number,
         required: true

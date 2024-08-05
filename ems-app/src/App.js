@@ -15,6 +15,7 @@ const GET_EMPLOYEES = gql`
       id,
       firstName
       lastName
+      dateOfBirth
       age
       dateOfJoining
       title
@@ -30,6 +31,7 @@ const CREATE_EMPLOYEE = gql`
   mutation CreateEmployee(
     $firstName: String!,
     $lastName: String!,
+    $dateOfBirth: Date!,
     $age: Int!,
     $dateOfJoining: Date!,
     $title: title!,
@@ -41,6 +43,7 @@ const CREATE_EMPLOYEE = gql`
     createEmployee(
       firstName: $firstName,
       lastName: $lastName,
+      dateOfBirth: $dateOfBirth,
       age: $age,
       dateOfJoining: $dateOfJoining,
       title: $title,
@@ -51,6 +54,7 @@ const CREATE_EMPLOYEE = gql`
     ) {
       firstName
       lastName
+      dateOfBirth
       age
       dateOfJoining
       title
@@ -77,6 +81,7 @@ const UPDATE_EMPLOYEE = gql`
     ) {
       firstName
       lastName
+      dateOfBirth
       age
       dateOfJoining
       title
@@ -99,6 +104,7 @@ const UPDATE_EMPLOYEE_STATUS = gql`
     ) {
       firstName
       lastName
+      dateOfBirth
       age
       dateOfJoining
       title
@@ -119,6 +125,7 @@ const DELETE_EMPLOYEE = gql`
     ) {
       firstName
       lastName
+      dateOfBirth
       age
       dateOfJoining
       title

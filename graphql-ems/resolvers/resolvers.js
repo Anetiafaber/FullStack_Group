@@ -34,6 +34,7 @@ export const resolvers = {
       {
         firstName,
         lastName,
+        dateOfBirth,
         age,
         dateOfJoining,
         title,
@@ -47,6 +48,7 @@ export const resolvers = {
             const newEmployee = {
                 firstName,
                 lastName,
+                dateOfBirth,
                 age,
                 dateOfJoining,
                 title,

@@ -16,6 +16,7 @@ function EmployeeTableRow({ employee, navigateToDetail }) {
     <tr scope="row" onClick={handleRowClick} style={{ cursor: "pointer" }}>
       <td>{employee.firstName}</td>
       <td>{employee.lastName}</td>
+      <td>{formatDateToString(employee.dateOfBirth)}</td>
       <td>{employee.age}</td>
       <td>{formatDateToString(employee.dateOfJoining)}</td>
       <td>{employee.title}</td>

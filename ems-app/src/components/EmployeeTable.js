@@ -26,6 +26,7 @@ function EmployeeTable({employees}) {
               <tr>
                 <th scope="col">FirstName</th>
                 <th scope="col">LastName</th>
+                <th scope="col">Date of Birth</th>
                 <th scope="col">Age</th>
                 <th scope="col">Joining Date</th>
                 <th scope="col">Title</th>
