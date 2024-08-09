@@ -5,6 +5,7 @@ import URLSearchParams from 'url-search-params';
 import { useLocation } from "react-router-dom";
 import EmployeeStatusFilter from "./EmployeeStatusFilter";
 import { Box, Flex } from "@chakra-ui/react";
+import UpcomingRetirement from "./UpcomingRetirement";
 
 
 function EmployeeDirectory({employees, reloadData}) {
@@ -15,16 +16,17 @@ function EmployeeDirectory({employees, reloadData}) {
   useEffect( () => {
     const params = new URLSearchParams(location.search);
     const employeeType = params.get("employeeType");
+    const upcomingRetirement = params.get("showRetirement")? true : false;
     
     const inActiveParam = params.get("inActive");
     setInActive(inActiveParam);
 
     // refetch table query based on filters
     if (inActiveParam){
-      reloadData(null, true);
+      reloadData(null, null ,true);
     }
-    else if (employeeType) {
-      reloadData(employeeType, false);
+    else if (employeeType || upcomingRetirement) {
+      reloadData(employeeType, upcomingRetirement, null);
     }
     else {
       reloadData(); 
@@ -36,6 +38,7 @@ function EmployeeDirectory({employees, reloadData}) {
     <div className="emp-list container">
       <Flex justifyContent="space-between" alignItems="center" mb={5}>
       {!inActive && (<Box display="flex" flexDirection="column" alignItems="flex-start">
+        <UpcomingRetirement />
           <EmployeeFilter />
         </Box> )}
         <EmployeeStatusFilter />

@@ -1,5 +1,6 @@
 import { GraphQLScalarType } from "graphql";
 import { UserModel } from "../model/UserModel.js";
+import moment from "moment";
 
 export const resolvers = {
   Date: new GraphQLScalarType({
@@ -12,11 +13,26 @@ export const resolvers = {
     },
   }),
   Query: {
-    getAllEmployees: async (_, { employeeType, isActive }) =>  {
+    getAllEmployees: async (_, { employeeType, isActive, upcomingRetirement }) =>  {
       let filter = {isActive};
       if (employeeType) {
         filter.employeeType = employeeType;
       }
+
+      if (upcomingRetirement) {
+        // get employees who have upcoming retirement in the next 6 months
+        const today = moment();
+        const retirementAge = 65;
+        const sixMonthsFromNow = today.clone().add(6, 'months');
+        const retirementStartDate = today.clone().subtract(retirementAge, 'years').startOf('day').toDate();
+        const retirementEndDate = sixMonthsFromNow.clone().subtract(retirementAge, 'years').endOf('day').toDate();  
+
+        filter.dateOfBirth = { 
+          $gte: retirementStartDate ,
+          $lte: retirementEndDate
+          };
+      }
+
       return await UserModel.find(filter)
     },
     getEmployeeById: async (_, { id }) => {

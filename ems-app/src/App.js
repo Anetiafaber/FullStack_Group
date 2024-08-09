@@ -10,8 +10,8 @@ import { useQuery, gql, useMutation } from "@apollo/client";
 
 // apollo client queries and mutations
 const GET_EMPLOYEES = gql`
-  query GetAllEmployees($employeeType: employeeType, $isActive: Boolean) {
-    getAllEmployees(employeeType: $employeeType, isActive: $isActive) {
+  query GetAllEmployees($employeeType: employeeType, $isActive: Boolean, $upcomingRetirement: Boolean) {
+    getAllEmployees(employeeType: $employeeType, isActive: $isActive, upcomingRetirement: $upcomingRetirement) {
       id,
       firstName
       lastName
@@ -145,19 +145,22 @@ function App() {
   const [employees, setEmployees] = useState([]);
 
   // reload data of employees based on filtering
-  const reloadData = async (employeeType, inActive) => {
+  const reloadData = async (employeeType, upcomingRetirement, inActive) => {
     if (inActive) {
-      await refetch({ employeeType: null, isActive: false });
+      await refetch({ employeeType: null, upcomingRetirement: null, isActive: false });
     } 
-    else if (employeeType) {
-      const filters = { employeeType: null};
+    else if (employeeType || upcomingRetirement) {
+      const filters = { employeeType: null, upcomingRetirement: null };
       if (employeeType) {
         filters.employeeType = employeeType;
+      }
+      if (upcomingRetirement) {
+        filters.upcomingRetirement = upcomingRetirement;
       }
       await refetch(filters);
     } 
     else {
-      await refetch({ employeeType: null, isActive: true });
+      await refetch({ employeeType: null, upcomingRetirement: null, isActive: true });
     }
   };
 

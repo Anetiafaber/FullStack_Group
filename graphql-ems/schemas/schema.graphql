@@ -36,7 +36,7 @@ type Employee {
 }
 
 type Query {
-    getAllEmployees(employeeType: employeeType, isActive: Boolean): [Employee]
+    getAllEmployees(employeeType: employeeType, isActive: Boolean, upcomingRetirement: Boolean): [Employee]
     getEmployeeById(id: ID!): Employee
 }
 
